@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+.ENV/
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.swp
+
+# Uploads
+uploads/
+
+# SQLite DB files (optional — include if you use a local dev DB only)
+*.sqlite3
+*.db
+
+# Logs & cache
+*.log
+*.bak
+.cache/
+*.pytest_cache/
+
+# Python distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# __test__ results
+htmlcov/
+coverage.xml
+.pytest_cache/
+
+# Whisper model cache (if any)
+whisper_cache/

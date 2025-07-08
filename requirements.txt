@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+passlib[bcrypt]
+pyjwt
+python-multipart
+python-dotenv
+openai-whisper
+ffmpeg-python
