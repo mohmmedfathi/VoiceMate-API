@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}VoiceMate{% endblock %}
+{% block page %}app{% endblock %}
+
+{% block header_actions %}
+<button id="logoutBtn" type="button" class="btn btn--ghost btn--sm" data-i18n="nav_logout">Log out</button>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1 data-i18n="dash_title">Your notes</h1>
+  <p data-i18n="dash_subtitle">Record a thought or drop an audio file — we'll transcribe and summarize it.</p>
+</div>
+
+<section class="panel composer" id="composer">
+  <div class="composer__row">
+    <button class="rec-btn" id="recBtn" type="button" data-state="idle">
+      <span class="dot"></span>
+      <span id="recLabel" data-i18n="record_start">Record</span>
+    </button>
+    <span class="eq is-hidden" id="recWave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+    <span class="rec-timer is-hidden" id="recTimer">0:00</span>
+
+    <span class="divider-or" data-i18n="composer_or">or</span>
+
+    <label class="dropzone" id="dropzone">
+      <span class="wave wave--mini" aria-hidden="true" data-bars="dz"></span>
+      <span id="dzText" data-i18n="upload_drop">Drop an audio file, or click to choose</span>
+      <input type="file" id="fileInput" accept="audio/*,.mp3,.m4a,.wav,.webm,.ogg">
+    </label>
+  </div>
+
+  <div class="composer__status" id="composerStatus">
+    <span class="eq" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+    <span data-i18n="processing">Transcribing your audio…</span>
+  </div>
+</section>
+
+<div class="toolbar">
+  <span class="toolbar__icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+  </span>
+  <div class="field">
+    <label for="fromDate" data-i18n="filter_from">From</label>
+    <input class="input input--date" id="fromDate" type="date">
+  </div>
+  <div class="field">
+    <label for="toDate" data-i18n="filter_to">To</label>
+    <input class="input input--date" id="toDate" type="date">
+  </div>
+  <button class="btn btn--ghost btn--sm is-hidden" id="clearFilter" type="button" data-i18n="filter_clear">Clear</button>
+  <span class="spacer"></span>
+  <span class="count" id="noteCount"></span>
+</div>
+
+<ul class="notes" id="notesList" aria-live="polite"></ul>
+
+<div class="empty is-hidden" id="emptyState">
+  <span class="wave" aria-hidden="true" data-bars="empty"></span>
+  <h3 data-i18n="empty_title">No notes yet</h3>
+  <p data-i18n="empty_body">Hit record or drop a file above to capture your first voice note.</p>
+</div>
+{% endblock %}

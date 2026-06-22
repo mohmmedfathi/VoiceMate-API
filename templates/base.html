@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F6F3EC">
+  <title>{% block title %}VoiceMate{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/app.css?v=18">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><g fill='%23E04F2A'><rect x='2' y='6' width='1.6' height='4' rx='.8'/><rect x='5' y='3' width='1.6' height='10' rx='.8'/><rect x='8' y='5' width='1.6' height='6' rx='.8'/><rect x='11' y='2' width='1.6' height='12' rx='.8'/></g></svg>">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('vm_lang');
+        var lang = saved || ((navigator.language || 'en').toLowerCase().indexOf('ar') === 0 ? 'ar' : 'en');
+        var el = document.documentElement;
+        el.lang = lang;
+        el.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body data-page="{% block page %}{% endblock %}">
+
+  {% block header %}
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="/app" aria-label="VoiceMate">
+        {% include "_mark.html" %}
+        <span class="brand__name">Voice<b>Mate</b></span>
+      </a>
+      <div class="header__actions">
+        <button id="langToggle" type="button" class="btn btn--ghost btn--sm lang-toggle">عربي</button>
+        {% block header_actions %}{% endblock %}
+      </div>
+    </div>
+  </header>
+  {% endblock %}
+
+  <main class="container {% block container_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+
+  <div class="toast-host" aria-live="polite"><div id="toast" class="toast"></div></div>
+
+  <script src="/static/js/i18n.js?v=18"></script>
+  <script src="/static/js/app.js?v=18"></script>
+</body>
+</html>

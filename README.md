@@ -1,186 +1,178 @@
-# VoiceMate API
+# VoiceMate
 
-VoiceMate is a simple voice-to-text notes API built using FastAPI, Whisper (local), and JWT. It allows users to upload audio notes, transcribe them into text, summarize the content, and filter saved notes by date.
+A voice‑notes app built with FastAPI. Record or upload audio and get it
+transcribed locally with Whisper. Ships with a small, server‑rendered web UI
+that works in both English and Arabic (RTL).
 
----
-
-This project helps me learn how to:
-
-- Use FastAPI and SQLite
-- Handle file uploads
-- Integrate a local AI model (Whisper)
-- Implement JWT authentication
-- Structure modular FastAPI apps
-
-  
 ## Features
 
-- Upload `.mp3` audio files
-- Local transcription using Whisper (no OpenAI API needed)
-- Summarization of transcribed text
-- User authentication using JWT
-- SQLite database with SQLAlchemy ORM
-- Filter notes by upload date
+- **Record or upload** — record in the browser with a live waveform, or drag and drop an `.mp3` / `.m4a` / `.wav` / `.webm` / `.ogg`.
+- **Background transcription** — uploads return immediately; Whisper runs in a Celery worker while the UI polls for the result.
+- **Per‑note audio + transcript** — play back the original audio and read the transcript and a short summary.
+- **Filter & manage** — filter notes by date and delete the ones you don't need.
+- **JWT auth** — register / login; every note (and its audio) is scoped to its owner.
+- **Bilingual UI** — English / Arabic toggle with full RTL/LTR support.
 
----
+## Tech stack
 
-## Tech Stack
+| Area            | Choice                          |
+| --------------- | ------------------------------- |
+| API             | FastAPI                         |
+| Database        | SQLAlchemy + SQLite (default)   |
+| Background jobs | Celery + Redis                  |
+| Transcription   | OpenAI Whisper (local)          |
+| Frontend        | Jinja2 templates + vanilla JS   |
+
+## Prerequisites
+
 - Python 3.11+
-- FastAPI
-- SQLite with SQLAlchemy
-- JWT for authentication
-- Whisper (running locally)
+- [ffmpeg](https://ffmpeg.org/) on your `PATH` (required by Whisper)
+- Redis (for the Celery worker) — or just use Docker, which provides it
 
+## Run with Docker
 
----
+The quickest way to run the full stack (web + Celery worker + Redis):
 
-## Getting Started
+```bash
+docker compose up --build
+```
 
-### Clone the Repo
+Then open http://localhost:8000.
+
+Set a `SECRET_KEY` before starting Docker. Docker Compose refuses to start
+without it. Create a `.env` file next to `docker-compose.yml`:
+
+```env
+SECRET_KEY=your-long-random-string
+```
+
+The database, uploaded audio, and the downloaded Whisper model are kept in named
+volumes, so they survive restarts. The first transcription downloads the Whisper
+model and is slower than later ones.
+
+## Run locally
+
+The steps below run the project directly on your machine instead of in Docker.
+
+### 1. Install
 
 ```bash
 git clone https://github.com/your-username/VoiceMate-API.git
 cd VoiceMate-API
-```
-
-### Create Virtual Environment
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### Install Requirements
-
-```bash
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Generate a Secret Key
+For the test suite:
 
-To generate a secure secret key:
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+### 2. Configure
+
+```bash
+cp .env.example .env
+```
+
+Set at least `SECRET_KEY`:
 
 ```bash
 python3 -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
-Create a `.env` file in your project root and add:
+See [Configuration](#configuration) for all options.
 
-```env
-SECRET_KEY=your_generated_key
-```
+### 3. Run
 
----
-
-## Running the App
+Transcription runs on a Celery worker backed by Redis, so start three processes:
 
 ```bash
+redis-server                                          # broker
+celery -A celery_app.celery_app worker --loglevel=info
 uvicorn main:app --reload
 ```
 
-The API will be available at: `http://localhost:8000`
+Open http://localhost:8000.
 
----
+> No Redis handy? For local development set `CELERY_TASK_ALWAYS_EAGER=1` to run
+> transcription inline in the web process (no broker or worker needed).
 
-## API Endpoints and Tests
+## Configuration
 
-### 1. Register a New User
+| Variable                   | Default                        | Description                                   |
+| -------------------------- | ------------------------------ | --------------------------------------------- |
+| `SECRET_KEY`               | —                              | **Required.** Secret used to sign JWTs.       |
+| `JWT_EXPIRES_MINUTES`      | `1440`                         | Token lifetime in minutes.                    |
+| `DATABASE_URL`             | `sqlite:///./voicemate.db`     | SQLAlchemy database URL.                       |
+| `REDIS_URL`                | `redis://localhost:6379/0`     | Celery broker / result backend.                |
+| `CELERY_TASK_ALWAYS_EAGER` | `0`                            | `1` runs tasks inline (development only).       |
+| `UPLOAD_DIR`               | `uploads`                      | Where audio files are stored.                  |
+| `WHISPER_MODEL`            | `small`                        | Whisper model size (`tiny`, `base`, `small`, …). |
 
-**POST /auth/register**
+## API
 
-**Request**:
+Interactive docs are available at `/docs` once the server is running.
 
-```json
-{
-  "email": "user@example.com",
-  "password": "123456"
-}
-```
+| Method   | Endpoint                | Description                          |
+| -------- | ----------------------- | ----------------------------------- |
+| `POST`   | `/auth/register`        | Create an account                   |
+| `POST`   | `/auth/login`           | Obtain a JWT                        |
+| `POST`   | `/notes/upload`         | Upload audio (queues transcription) |
+| `GET`    | `/notes/`               | List notes (filter by date)         |
+| `GET`    | `/notes/{id}`           | Get a single note (poll its status) |
+| `DELETE` | `/notes/{id}`           | Delete a note and its audio         |
+| `GET`    | `/notes/{id}/audio`     | Stream the original audio (owner)   |
 
-**Test**:
+All `/notes` routes require an `Authorization: Bearer <token>` header.
+
+### Example
 
 ```bash
+# 1. Register and log in
 curl -X POST http://localhost:8000/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"123456"}'
-```
+  -d '{"email":"me@example.com","password":"secret123"}'
 
-**Expected Status Code**: `201 Created`
-
----
-
-### 2. Login
-
-**POST /auth/login**
-
-**Request**:
-
-```json
-{
-  "email": "user@example.com",
-  "password": "123456"
-}
-```
-
-**Test**:
-
-```bash
-curl -X POST http://localhost:8000/auth/login \
+TOKEN=$(curl -s -X POST http://localhost:8000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"123456"}'
-```
+  -d '{"email":"me@example.com","password":"secret123"}' | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
 
-**Expected Status Code**: `200 OK`
-
----
-
-### 3. Upload Audio Note
-
-**POST /notes/upload**
-
-**Test**:
-
-```bash
+# 2. Upload audio (returns a note with status "processing")
 curl -X POST http://localhost:8000/notes/upload \
-  -H "Authorization: Bearer <your_token>" \
-  -F "file=@path/to/audio.mp3"
+  -H "Authorization: Bearer $TOKEN" \
+  -F "file=@sample.mp3"
+
+# 3. Poll the note until status is "done", then list everything
+curl http://localhost:8000/notes/ -H "Authorization: Bearer $TOKEN"
 ```
 
-**Expected Status Code**: `201 Created`
+## How it works
 
----
+1. `POST /notes/upload` stores the audio and creates a note with status
+   `processing`, then enqueues a Celery task and returns immediately.
+2. The worker transcribes the audio with Whisper, writes the transcript and a
+   short summary, and sets the status to `done` (or `error` on failure).
+3. The web UI polls `GET /notes/{id}` until the note is ready.
 
-### 4. List All Notes
+Audio is never served from a public folder — `GET /notes/{id}/audio` checks
+ownership first, and stored files are given unique names to avoid collisions.
 
-**GET /notes/**
+## Project structure
 
-**Test**:
-
-```bash
-curl -X GET http://localhost:8000/notes/ \
-  -H "Authorization: Bearer <your_token>"
 ```
-
-**Expected Status Code**: `200 OK`
-
----
-
-### 5. Filter Notes by Date
-
-**GET /notes/?date=YYYY-MM-DD**
-
-**Test**:
-
-```bash
-curl -X GET "http://localhost:8000/notes/?date=2025-07-08" \
-  -H "Authorization: Bearer <your_token>"
+config.py        Settings loaded from environment / .env
+main.py          FastAPI app, routers and static mounts
+auth.py          Register / login endpoints
+notes.py         Upload, list, audio and delete endpoints
+web.py           Server-rendered pages (login, dashboard)
+models.py        SQLAlchemy models (User, Note)
+schemas.py       Pydantic schemas
+database.py      Engine, session, lightweight migrations
+celery_app.py    Celery application and configuration
+tasks.py         Background transcription task
+utils.py         Auth, hashing, file storage, Whisper
+templates/       Jinja2 templates
+static/          CSS and JS
 ```
-
-**Expected Status Code**: `200 OK`
-
----
-
-
-
-
-

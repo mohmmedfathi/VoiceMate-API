@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+from typing import Optional
 
 class UserCreate(BaseModel):
     email: str
@@ -8,16 +9,15 @@ class UserCreate(BaseModel):
 class UserOut(BaseModel):
     id: int
     email: str
-    class Config:
-        orm_mode = True
 
-class NoteCreate(BaseModel):
-    filename: str
-    transcript: str
-    summary: str
+    model_config = ConfigDict(from_attributes=True)
 
-class NoteOut(NoteCreate):
+class NoteOut(BaseModel):
     id: int
+    filename: str
+    transcript: Optional[str] = None
+    summary: Optional[str] = None
+    status: str
+    error: Optional[str] = None
     created_at: datetime
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

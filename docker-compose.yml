@@ -1,0 +1,32 @@
+services:
+  redis:
+    image: redis:7-alpine
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY}
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:////app/data/voicemate.db
+      - UPLOAD_DIR=/app/data/uploads
+    volumes:
+      - data:/app/data
+
+  worker:
+    build: .
+    command: celery -A celery_app.celery_app worker --loglevel=info
+    environment:
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY}
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:////app/data/voicemate.db
+      - UPLOAD_DIR=/app/data/uploads
+      - WHISPER_MODEL=${WHISPER_MODEL:-small}
+    volumes:
+      - data:/app/data
+      - whisper_cache:/root/.cache/whisper
+
+volumes:
+  data:
+  whisper_cache:

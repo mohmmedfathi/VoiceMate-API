@@ -2,8 +2,11 @@ fastapi
 uvicorn
 sqlalchemy
 passlib[bcrypt]
+bcrypt<4.1  # passlib 1.7.x is incompatible with bcrypt>=4.1 (register would 500)
 pyjwt
 python-multipart
 python-dotenv
 openai-whisper
-ffmpeg-python
+jinja2
+celery
+redis

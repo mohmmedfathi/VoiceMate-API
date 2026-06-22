@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}VoiceMate — {% block t_signin %}Sign in{% endblock %}{% endblock %}
+{% block page %}login{% endblock %}
+{% block container_class %}container--narrow auth-wrap{% endblock %}
+
+{% block header %}
+<header class="site-header">
+  <div class="site-header__inner" style="justify-content:flex-end;">
+    <button id="langToggle" type="button" class="btn btn--ghost btn--sm lang-toggle">عربي</button>
+  </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="auth-brand">
+  {% include "_mark.html" %}
+  <h1 data-i18n="app_name">VoiceMate</h1>
+  <p data-i18n="auth_tagline">Speak it. We'll write it down.</p>
+</div>
+
+<div class="panel auth-card">
+  <div class="tabs" role="tablist">
+    <button class="tab is-active" id="tabSignin" type="button" role="tab" data-i18n="auth_signin">Sign in</button>
+    <button class="tab" id="tabSignup" type="button" role="tab" data-i18n="auth_signup">Create account</button>
+  </div>
+
+  <form class="form" id="authForm" novalidate>
+    <div class="form-error" id="authError" role="alert"></div>
+
+    <div class="field">
+      <label for="email" data-i18n="auth_email">Email</label>
+      <input class="input" id="email" name="email" type="email" autocomplete="email"
+             inputmode="email" required data-i18n-ph="auth_email_ph" placeholder="you@example.com">
+    </div>
+
+    <div class="field">
+      <label for="password" data-i18n="auth_password">Password</label>
+      <input class="input" id="password" name="password" type="password"
+             autocomplete="current-password" required minlength="4"
+             data-i18n-ph="auth_password_ph" placeholder="••••••••">
+    </div>
+
+    <button class="btn btn--primary btn--block" id="authSubmit" type="submit">
+      <span id="authSubmitLabel" data-i18n="auth_signin">Sign in</span>
+    </button>
+
+    <p class="form-hint" id="authSwitchHint">
+      <span id="switchText" data-i18n="auth_no_account">New here?</span>
+      <a href="#" id="switchLink" data-i18n="auth_switch_signup">Create an account</a>
+    </p>
+  </form>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
 
 Base = declarative_base()
@@ -17,4 +17,6 @@ class Note(Base):
     filename = Column(String)
     transcript = Column(Text)
     summary = Column(Text)
+    status = Column(String, default="processing")
+    error = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

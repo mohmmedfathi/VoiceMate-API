@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}VoiceMate — your voice, written down{% endblock %}
+{% block page %}landing{% endblock %}
+{% block container_class %}landing{% endblock %}
+
+{% block header %}
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="VoiceMate">
+      {% include "_mark.html" %}
+      <span class="brand__name">Voice<b>Mate</b></span>
+    </a>
+    <div class="header__actions">
+      <button id="langToggle" type="button" class="btn btn--ghost btn--sm lang-toggle">عربي</button>
+      <a class="btn btn--sm" href="/login" data-i18n="land_nav_signin">Sign in</a>
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <span class="chip" data-i18n="land_chip">Voice notes, transcribed</span>
+  <h1 class="hero__title" data-i18n="land_hero_title">Turn your voice into notes</h1>
+  <p class="hero__sub" data-i18n="land_hero_sub">Record a thought or upload audio. VoiceMate turns it into a clear, organized note.</p>
+  <div class="hero__cta">
+    <a class="btn btn--primary btn--lg" href="/login?mode=signup" data-i18n="land_cta_start">Get started</a>
+    <a class="btn btn--lg" href="/login" data-i18n="land_cta_signin">I have an account</a>
+  </div>
+</section>
+
+<section class="product-preview" aria-label="Voice note preview">
+  <div class="product-preview__header">
+    <span class="product-preview__eyebrow" data-i18n="preview_eyebrow">Latest note</span>
+    <span class="product-preview__status" data-i18n="preview_status">Transcribed</span>
+  </div>
+  <h2 class="product-preview__title" id="pvTitle">Team standup</h2>
+  <div class="product-preview__audio">
+    <span class="wave product-preview__wave" aria-hidden="true" data-bars="preview"></span>
+    <span class="product-preview__duration" id="pvDur" dir="ltr">01:24</span>
+  </div>
+  <div class="product-preview__summary">
+    <span data-i18n="preview_summary_label">Summary</span>
+    <p id="pvSummary">Development is on track, the login screen ships Thursday, and QA starts Friday</p>
+  </div>
+</section>
+
+<section class="benefits">
+  <article class="benefit">
+    <div class="benefit__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+    </div>
+    <div class="benefit__text">
+      <h2 data-i18n="feat1_t">Record in your browser</h2>
+      <p data-i18n="feat1_d">One tap to capture a thought — nothing to install</p>
+    </div>
+  </article>
+
+  <article class="benefit">
+    <div class="benefit__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/></svg>
+    </div>
+    <div class="benefit__text">
+      <h2 data-i18n="feat3_t">Private by default</h2>
+      <p data-i18n="feat3_d">Whisper runs on your own server; audio never leaves it</p>
+    </div>
+  </article>
+</section>
+
+<section class="cta-band">
+  <div class="cta-band__copy">
+    <span class="eq cta-band__wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+    <h2 data-i18n="cta_title">Ready to capture your next idea?</h2>
+    <p data-i18n="cta_sub">Create a free account and turn your voice into organized notes</p>
+  </div>
+  <a class="btn btn--primary btn--lg" href="/login?mode=signup" data-i18n="land_cta_start">Get started</a>
+</section>
+{% endblock %}
