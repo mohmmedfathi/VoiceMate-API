@@ -48,3 +48,4 @@ coverage.xml
 
 # Whisper model cache (if any)
 whisper_cache/
+*.webm
