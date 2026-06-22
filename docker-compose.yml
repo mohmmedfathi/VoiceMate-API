@@ -23,6 +23,9 @@ services:
       - DATABASE_URL=sqlite:////app/data/voicemate.db
       - UPLOAD_DIR=/app/data/uploads
       - WHISPER_MODEL=${WHISPER_MODEL:-small}
+      - WHISPER_LANGUAGE=${WHISPER_LANGUAGE:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash-lite}
     volumes:
       - data:/app/data
       - whisper_cache:/root/.cache/whisper

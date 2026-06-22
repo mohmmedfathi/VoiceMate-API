@@ -32,6 +32,7 @@
       processing: "Transcribing your audio…",
       toast_saved: "Note saved",
       err_upload: "Upload failed — please try again",
+      err_audio_too_short: "Audio must be at least 5 seconds",
       err_mic: "Couldn't access the microphone",
 
       filter_from: "From",
@@ -113,6 +114,7 @@
       processing: "بنحول صوتك لنص…",
       toast_saved: "اتحفظت الملاحظة",
       err_upload: "الرفع مانفعش جرب تاني",
+      err_audio_too_short: "الصوت لازم يكون 5 ثواني على الاقل",
       err_mic: "مش عارفين نوصل للمايك",
 
       filter_from: "من",
@@ -201,7 +203,10 @@
     });
 
     const toggle = document.getElementById("langToggle");
-    if (toggle) toggle.textContent = lang === "ar" ? "English" : "عربي";
+    if (toggle) {
+      const label = toggle.querySelector(".lang-toggle__label") || toggle;
+      label.textContent = lang === "ar" ? "English" : "عربي";
+    }
 
     document.dispatchEvent(new CustomEvent("vm:langchange", { detail: { lang: lang } }));
   }

@@ -29,6 +29,12 @@ def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_db), us
     if duration is None:
         os.remove(os.path.join(config.UPLOAD_DIR, filename))
         raise HTTPException(status_code=400, detail="Invalid or unsupported audio file")
+    if duration < config.MIN_AUDIO_SECONDS:
+        os.remove(os.path.join(config.UPLOAD_DIR, filename))
+        raise HTTPException(
+            status_code=400,
+            detail=f"Audio is shorter than the {config.MIN_AUDIO_SECONDS}-second minimum",
+        )
     if duration > config.MAX_AUDIO_SECONDS:
         os.remove(os.path.join(config.UPLOAD_DIR, filename))
         raise HTTPException(

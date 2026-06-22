@@ -1,7 +1,11 @@
 import os
 import re
+import json
+import time
 import uuid
 import subprocess
+import urllib.request
+import urllib.error
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 
@@ -56,15 +60,65 @@ def whisper_transcribe(filename):
         import whisper
         whisper_model = whisper.load_model(config.WHISPER_MODEL)
     path = os.path.join(config.UPLOAD_DIR, filename)
-    return whisper_model.transcribe(path)["text"].strip()
+    result = whisper_model.transcribe(
+        path,
+        language=config.WHISPER_LANGUAGE or None,
+        task="transcribe",
+        beam_size=5,
+        best_of=5,
+        temperature=(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
+        condition_on_previous_text=False,
+        compression_ratio_threshold=2.4,
+        no_speech_threshold=0.6,
+        fp16=False,
+    )
+    return result["text"].strip()
 
 
 def summarize_text(text):
     text = (text or "").strip()
     if not text:
         return ""
+    if config.GEMINI_API_KEY:
+        summary = gemini_summary(text)
+        if summary:
+            return summary
+    return extractive_summary(text)
+
+
+def gemini_summary(text):
+    prompt = (
+        "Summarize this voice note in one or two short sentences. "
+        "Reply in the same language as the note and return only the summary.\n\n"
+        + text
+    )
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{config.GEMINI_MODEL}:generateContent?key={config.GEMINI_API_KEY}"
+    )
+    body = json.dumps({
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 200},
+    }).encode()
+    for attempt in range(3):
+        request = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                data = json.loads(response.read())
+            return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+        except urllib.error.HTTPError as error:
+            if error.code in (429, 503) and attempt < 2:
+                time.sleep(1.5 * (attempt + 1))
+                continue
+            return ""
+        except Exception:
+            return ""
+    return ""
+
+
+def extractive_summary(text):
     sentences = [s.strip() for s in re.split(r"(?<=[.!?؟])\s+|\n+", text) if s.strip()]
-    if len(sentences) <= 2:
+    if len(sentences) < 2:
         return text
     words = [w for w in re.findall(r"\w+", text.lower()) if len(w) >= 3]
     if not words:

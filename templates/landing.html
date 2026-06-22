@@ -11,8 +11,9 @@
       <span class="brand__name">Voice<b>Mate</b></span>
     </a>
     <div class="header__actions">
-      <button id="langToggle" type="button" class="btn btn--ghost btn--sm lang-toggle">عربي</button>
-      <a class="btn btn--sm" href="/login" data-i18n="land_nav_signin">Sign in</a>
+      {% include "_langtoggle.html" %}
+      <span class="header__sep" aria-hidden="true"></span>
+      <a class="btn btn--primary btn--sm" href="/login" data-i18n="land_nav_signin">Sign in</a>
     </div>
   </div>
 </header>

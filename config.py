@@ -16,7 +16,9 @@ CELERY_ALWAYS_EAGER = os.getenv("CELERY_TASK_ALWAYS_EAGER", "0") == "1"
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "small")
+WHISPER_LANGUAGE = os.getenv("WHISPER_LANGUAGE", "")
+MIN_AUDIO_SECONDS = int(os.getenv("MIN_AUDIO_SECONDS", "5"))
 MAX_AUDIO_SECONDS = int(os.getenv("MAX_AUDIO_SECONDS", "600"))
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")

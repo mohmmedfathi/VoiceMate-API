@@ -109,7 +109,10 @@ Open http://localhost:8000.
 | `REDIS_URL`                | `redis://localhost:6379/0`     | Celery broker / result backend.                |
 | `CELERY_TASK_ALWAYS_EAGER` | `0`                            | `1` runs tasks inline (development only).       |
 | `UPLOAD_DIR`               | `uploads`                      | Where audio files are stored.                  |
-| `WHISPER_MODEL`            | `small`                        | Whisper model size (`tiny`, `base`, `small`, …). |
+| `WHISPER_MODEL`            | `small`                        | Whisper model size (`tiny`, `base`, `small`, `medium`, `large-v3`). Use `medium`/`large-v3` for good Arabic accuracy. |
+| `WHISPER_LANGUAGE`         | — (auto-detect)                | Force a language code (`ar`, `en`, …) for short/accented clips. |
+| `GEMINI_API_KEY`           | —                              | Optional. Google Gemini key for AI summaries; empty uses the built-in local summarizer. |
+| `GEMINI_MODEL`             | `gemini-2.5-flash-lite`        | Gemini model used when `GEMINI_API_KEY` is set. |
 
 ## API
 
@@ -153,7 +156,9 @@ curl http://localhost:8000/notes/ -H "Authorization: Bearer $TOKEN"
 1. `POST /notes/upload` stores the audio and creates a note with status
    `processing`, then enqueues a Celery task and returns immediately.
 2. The worker transcribes the audio with Whisper, writes the transcript and a
-   short summary, and sets the status to `done` (or `error` on failure).
+   short summary, and sets the status to `done` (or `error` on failure). The
+   summary uses Google Gemini when `GEMINI_API_KEY` is set, and falls back to a
+   local extractive summarizer otherwise (or if the API call fails).
 3. The web UI polls `GET /notes/{id}` until the note is ready.
 
 Audio is never served from a public folder — `GET /notes/{id}/audio` checks

@@ -81,7 +81,9 @@ a { color: inherit; }
 .brand__mark { display: block; color: var(--signal); flex: none; }
 .brand__name { font-weight: 700; letter-spacing: -.01em; font-size: 1.05rem; }
 .brand__name b { color: var(--ink); font-weight: 800; }
-.header__actions { display: flex; align-items: center; gap: 8px; }
+.header__actions { display: flex; align-items: center; gap: 10px; }
+.header__sep { inline-size: 1px; block-size: 20px; background: var(--line); flex: none; border-radius: 1px; }
+.header__sep:last-child { display: none; }
 
 .btn {
   --bg: var(--card);
@@ -113,9 +115,27 @@ a { color: inherit; }
 .btn[disabled] { opacity: .5; pointer-events: none; }
 
 .lang-toggle {
-  font-weight: 700; font-size: .82rem; letter-spacing: .01em;
-  min-width: 64px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink-2);
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: .82rem;
+  letter-spacing: .01em;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
 }
+.lang-toggle:hover { background: var(--card-2); color: var(--ink); }
+.lang-toggle:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+.lang-toggle__globe { flex: none; opacity: .75; }
+.lang-toggle:hover .lang-toggle__globe { opacity: 1; }
+.lang-toggle__label { line-height: 1; }
 
 .wave {
   display: inline-flex;

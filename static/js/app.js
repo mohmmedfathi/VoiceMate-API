@@ -379,7 +379,28 @@
     });
 
     const composer = $("#composer");
+    const MIN_AUDIO_SECONDS = 5;
+
+    function audioDuration(file) {
+      return new Promise((resolve) => {
+        const url = URL.createObjectURL(file);
+        const audio = document.createElement("audio");
+        audio.preload = "metadata";
+        audio.onloadedmetadata = () => {
+          URL.revokeObjectURL(url);
+          resolve(isFinite(audio.duration) ? audio.duration : null);
+        };
+        audio.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+        audio.src = url;
+      });
+    }
+
     async function uploadBlob(file) {
+      const dur = await audioDuration(file);
+      if (dur !== null && dur < MIN_AUDIO_SECONDS) {
+        toast(t("err_audio_too_short"), true);
+        return;
+      }
       composer.classList.add("is-busy");
       const fd = new FormData();
       fd.append("file", file);
@@ -460,10 +481,15 @@
       micStream.getTracks().forEach((tr) => tr.stop());
       setRecordingUI(false);
       recTimer.textContent = "0:00";
+      const seconds = (Date.now() - startedAt) / 1000;
       const type = mediaRecorder.mimeType || "audio/webm";
       const ext = type.indexOf("ogg") >= 0 ? "ogg" : "webm";
       const blob = new Blob(chunks, { type });
       if (!blob.size) return;
+      if (seconds < MIN_AUDIO_SECONDS) {
+        toast(t("err_audio_too_short"), true);
+        return;
+      }
       const file = new File([blob], "recording-" + Date.now() + "." + ext, { type });
       uploadBlob(file);
     }
